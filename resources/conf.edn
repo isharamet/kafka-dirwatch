@@ -1,2 +1,3 @@
-{:path  "C:/test"
- :kafka {:bootstrap.servers "127.0.0.1:9092"}}
+{:dir  "/tmp"
+ :kafka {:bootstrap.servers "127.0.0.1:9092"
+         :topic "test"}}
