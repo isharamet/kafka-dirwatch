@@ -1,6 +1,6 @@
 (ns kafka-dirwatch.core
-  (:require [clojure.edn :as edn]
-            [kafka-dirwatch.kafka-producer :as kafka]
+  (:require [kafka-dirwatch.kafka-producer :as kafka]
+            [clojure.edn :as edn]
             [juxt.dirwatch :as dirwatch]
             [me.raynes.fs :as fs])
   (:gen-class))
