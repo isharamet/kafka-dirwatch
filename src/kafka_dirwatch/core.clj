@@ -1,8 +1,19 @@
 (ns kafka-dirwatch.core
   (:require [clojure.edn :as edn]
             [kafka-dirwatch.kafka-producer :as kafka]
-            [juxt.dirwatch :as dirwatch])
+            [juxt.dirwatch :as dirwatch]
+            [me.raynes.fs :as fs])
   (:gen-class))
+
+(defn dirwatch-fn
+  [kafkap topic]
+  (fn [e]
+    (let [path (.getPath(e :file))]
+      (if (and (= (e :action) :modify)
+               (fs/exists? path))
+        (do
+          (println (str "Sending '" path "' content to '" topic "' Kafka topic"))
+          (kafka/send kafkap topic path (slurp path)))))))
 
 (defn -main
   [conf-file & args]
@@ -12,10 +23,5 @@
     (do
       (.addShutdownHook (Runtime/getRuntime) (Thread. (fn [] (.close kafkap))))
       (dirwatch/watch-dir
-        (fn [e]
-          (kafka/send
-            kafkap
-            (kafka-conf :topic)
-            ""
-            (.getPath (e :file))))
+        (dirwatch-fn kafkap (kafka-conf :topic))
         (clojure.java.io/file (conf :dir))))))
