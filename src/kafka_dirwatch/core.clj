@@ -24,4 +24,4 @@
       (.addShutdownHook (Runtime/getRuntime) (Thread. (fn [] (.close kafkap))))
       (dirwatch/watch-dir
         (dirwatch-fn kafkap (kafka-conf :topic))
-        (clojure.java.io/file (conf :dir))))))
+        (fs/file (conf :dir))))))
