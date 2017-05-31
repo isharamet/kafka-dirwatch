@@ -1,3 +1,4 @@
 {:dir  "/home/isharamet/kafka-dirwatch"
+ :initial-load true
  :kafka {:bootstrap.servers "127.0.0.1:9092"
          :topic "test"}}
