@@ -5,6 +5,16 @@
             [me.raynes.fs :as fs])
   (:gen-class))
 
+(defn walk-dir
+  [f dir]
+  (doall
+    (fs/walk
+      (fn [root dirs files]
+        (let [root (str (.getPath root) (java.io.File/separator))]
+          (doseq [file files]
+            (f (str root file)))))
+      dir)))
+
 (defn dirwatch-fn
   [kafkap topic]
   (fn [e]
@@ -18,10 +28,19 @@
 (defn -main
   [conf-file & args]
   (let [conf (edn/read-string (slurp conf-file))
+        dir (conf :dir)
         kafka-conf (conf :kafka)
+        kafka-topic (kafka-conf :topic)
         kafkap (kafka/producer kafka-conf)]
     (do
-      (.addShutdownHook (Runtime/getRuntime) (Thread. (fn [] (.close kafkap))))
+      (.addShutdownHook
+        (Runtime/getRuntime)
+        (Thread. (fn [] (.close kafkap))))
+      (if (conf :initial-load)
+        (walk-dir
+          (fn [file]
+            (kafka/send kafkap kafka-topic file (slurp file)))
+          dir))
       (dirwatch/watch-dir
-        (dirwatch-fn kafkap (kafka-conf :topic))
-        (fs/file (conf :dir))))))
+        (dirwatch-fn kafkap kafka-topic)
+        (fs/file dir)))))
