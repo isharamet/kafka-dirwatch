@@ -8,6 +8,7 @@ Specify directory to watch, kafka broker URLs and topic in `conf.edn`
 
 ```clojure
 {:dir  "/directory/to/watch"
+ :initial-load true
  :kafka {:bootstrap.servers "host1:9092,host2:9092"
          :topic "dirwatch-topic"}}
 ```
